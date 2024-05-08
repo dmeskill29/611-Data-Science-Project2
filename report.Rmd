@@ -1,0 +1,135 @@
+---
+title: "Analysis of Data Scientist Salaries"
+output: pdf_document
+author: "Daniel Meskill"
+---
+
+# Introduction
+
+I am a data scientist who is interested in understanding salary trends in the field. In this analysis, I will explore data scientist salaries based on experience level, location, trends over time, and comparisons to related job titles. By analyzing these factors, I aim to provide insights into the salary landscape for data scientists and help inform career decisions for aspiring and current professionals in the field.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+```
+
+# 1. Compare median/mean salaries by experience level (entry-level, mid-level, senior-level). 
+
+```{r, echo=FALSE}
+data <- read.csv("DataScienceSalary2021to2023.csv")
+
+# Calculate median and mean salary by experience level
+salary_summary <- data %>%
+  group_by(experience_level) %>%
+  summarise(
+    median_salary = median(salary_in_usd),
+    mean_salary = mean(salary_in_usd)
+  )
+
+print(salary_summary)
+```
+
+In this analysis, we calculate the median and mean salary for each experience level. We also create box plots of salary for each experience level category.
+
+```{r, echo=FALSE}
+ggplot(data, aes(x = experience_level, y = salary_in_usd)) +
+  geom_boxplot() +
+  xlab("Experience Level") +
+  ylab("Salary (USD)") +
+  ggtitle("Salary Distribution by Experience Level")
+```
+
+The box plot shows the distribution of salaries for each experience level. EN stands for entry-level, MI stands for mid-level, SE stands for senior-level, and EX stands for executive-level. The box plot displays the median, quartiles, and outliers for each experience level category. The median salary increases with experience level, which is expected as data scientists gain more experience and expertise. The box plot also reveals that the salary distribution is wider for senior-level and executive-level data scientists compared to entry-level and mid-level, suggesting more variation in salaries at higher experience levels. Additionally, there are outliers in each experience level category, indicating that some data scientists earn significantly higher or lower salaries than the median.
+
+# 2. Analyze salaries by location (country or US state) to identify high-paying areas.
+
+```{r, echo=FALSE}
+# Calculate median salary by country
+salary_by_country <- data %>%
+  group_by(company_location) %>%
+  summarise(median_salary = median(salary_in_usd)) %>%
+  arrange(desc(median_salary))
+
+# Display top 10 countries by median salary
+head(salary_by_country, 10)
+```
+
+In this analysis, we calculate the median salary for each country.
+
+```{r, echo=FALSE}
+top_countries <- salary_by_country %>% head(10)
+
+ggplot(top_countries, aes(x = reorder(company_location, median_salary), y = median_salary)) +
+  geom_bar(stat = "identity") +
+  xlab("Country") +
+  ylab("Median Salary (USD)") +
+  ggtitle("Median Salary by Country (Top 10)") +
+  coord_flip()
+```
+
+The bar chart shows the top 10 countries with the highest median salaries for data scientists. This suggests that these countries are among the highest-paying for data scientists. The chart also reveals variation in median salaries across different countries, indicating that the location can have a significant impact on a data scientist's salary.
+
+# 3. Examine salary trends over time from 2020-2023 to see the trajectory.
+
+```{r, echo=FALSE}
+# Calculate median salary by year
+salary_by_year <- data %>%
+  group_by(work_year) %>%
+  summarise(median_salary = median(salary_in_usd))
+
+print(salary_by_year)
+```
+
+In this analysis, we calculate the median salary for each year from 2020 to 2023.
+
+```{r, echo=FALSE}
+ggplot(salary_by_year, aes(x = work_year, y = median_salary, group = 1)) +
+  geom_line() +
+  geom_point() +
+  xlab("Year") +
+  ylab("Median Salary (USD)") +
+  ggtitle("Median Salary Trend (2020-2023)")
+```
+
+The line plot shows the trend in median salary over time. The median salary has been steadily increasing from 2020 to 2023, suggesting an upward trajectory in data scientist salaries. However, it's important to note that the dataset only covers a limited time period, and longer-term trends may differ.
+
+# 4. Compare data scientist salaries to other related job titles like data analyst, data engineer, machine learning engineer. This will help gauge if data scientist is the optimal path.
+
+```{r, echo=FALSE}
+# Calculate median salary by job title
+salary_by_title <- data %>%
+  group_by(job_title) %>%
+  summarise(median_salary = median(salary_in_usd))
+
+# Display median salary for selected job titles
+selected_titles <- c("Data Scientist", "Data Analyst", "Data Engineer", "Machine Learning Engineer")
+salary_by_title %>% filter(job_title %in% selected_titles)
+```
+
+In this analysis, we calculate the median salary for data scientists and other related job titles.
+
+```{r, echo=FALSE}
+selected_titles <- c("Data Scientist", "Data Analyst", "Data Engineer", "Machine Learning Engineer")
+salary_by_title_filtered <- salary_by_title %>% filter(job_title %in% selected_titles)
+
+ggplot(salary_by_title_filtered, aes(x = reorder(job_title, median_salary), y = median_salary)) +
+  geom_bar(stat = "identity") +
+  xlab("Job Title") +
+  ylab("Median Salary (USD)") +
+  ggtitle("Median Salary by Job Title") +
+  coord_flip()
+```
+
+The bar chart compares the median salaries of data scientists with other related job titles. Data scientists have the highest median salary, closely followed by machine learning engineers. Data engineers and data analysts have lower median salaries compared to data scientists. This suggests that pursuing a career as a data scientist or machine learning engineer may be more lucrative than other related roles. However, it's important to consider other factors such as job responsibilities, career growth opportunities, and personal interests when making career decisions.
+
+# Conclusion
+
+This analysis provides valuable insights into data scientist salaries based on experience level, location, trends over time, and comparisons to related job titles. The key findings are:
+
+1. Median salary increases with experience level, with senior-level and executive-level data scientists earning significantly more than entry-level and mid-level data scientists.
+2. The United States, Australia, Israel, Canada, and the United Kingdom are among the highest-paying countries for data scientists.
+3. Data scientist salaries have been steadily increasing from 2020 to 2023, indicating a positive trend.
+4. Data scientists and machine learning engineers have higher median salaries compared to data analysts and data engineers.
+
+These insights can help aspiring and current data scientists make informed decisions about their career paths, target high-paying locations, and understand the potential salary growth as they gain experience. However, it's crucial to consider other factors beyond salary, such as job satisfaction, work-life balance, and long-term career prospects, when making career choices.
